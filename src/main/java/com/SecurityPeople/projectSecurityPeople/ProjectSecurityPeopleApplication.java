@@ -1,0 +1,20 @@
+package com.SecurityPeople.projectSecurityPeople;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+
+@SpringBootApplication
+public class ProjectSecurityPeopleApplication extends SpringBootServletInitializer {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProjectSecurityPeopleApplication.class, args);
+	}
+
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(ProjectSecurityPeopleApplication.class);
+	}
+}
