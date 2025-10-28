@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Service
 public class UsuarioService {
 
@@ -20,6 +23,7 @@ public class UsuarioService {
             throw new RuntimeException("El correo ya está registrado");
         }
 
+        usuario.setFechaRegistro(LocalDateTime.now(ZoneId.of("America/Bogota")));
         // Encriptar la contraseña antes de guardar
         usuario.setContraseña(bcrypt.encode(usuario.getContraseña()));
 

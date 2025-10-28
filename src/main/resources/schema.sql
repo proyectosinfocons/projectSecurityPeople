@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     correo VARCHAR(100) UNIQUE,
-    contraseña VARCHAR(255)
+    contraseña VARCHAR(255),
+    fecha_registro TIMESTAMP DEFAULT NOW()
 );
 

@@ -2,6 +2,8 @@ package com.SecurityPeople.projectSecurityPeople.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
@@ -18,13 +20,27 @@ public class Usuario {
 
     private String contraseña;
 
+
+    @Column(name = "fecha_registro")
+    private LocalDateTime fechaRegistro = LocalDateTime.now();
+
+
     public Usuario() {}
 
-    public Usuario(String nombre, String apellido, String correo, String contraseña) {
+    public Usuario(String nombre, String apellido, String correo, String contraseña, LocalDateTime fechaRegistro) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.correo = correo;
         this.contraseña = contraseña;
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 
     // Getters y setters
