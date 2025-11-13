@@ -33,3 +33,16 @@ CREATE TABLE IF NOT EXISTS usuarios (
     fecha_registro TIMESTAMP DEFAULT NOW()
 );
 
+ALTER TABLE public.reporte
+ADD COLUMN usuario_id BIGINT;
+
+ALTER TABLE public.reporte
+ADD CONSTRAINT fk_reporte_usuario
+FOREIGN KEY (usuario_id)
+REFERENCES public.usuarios(id);
+
+
+ALTER TABLE public.reporte
+ADD COLUMN tipo VARCHAR(100) NULL;
+
+

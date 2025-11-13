@@ -1,8 +1,10 @@
 package com.SecurityPeople.projectSecurityPeople.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -25,14 +27,20 @@ public class Usuario {
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
 
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonIgnore // 👈 evita enviar todos los reportes del usuario
+    private List<Reporte> reportes;
+
     public Usuario() {}
 
-    public Usuario(String nombre, String apellido, String correo, String contraseña, LocalDateTime fechaRegistro) {
+    public Usuario(Long id, String nombre, String apellido, String correo, String contraseña, LocalDateTime fechaRegistro, List<Reporte> reportes) {
+        this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.correo = correo;
         this.contraseña = contraseña;
         this.fechaRegistro = fechaRegistro;
+        this.reportes = reportes;
     }
 
     public LocalDateTime getFechaRegistro() {
@@ -41,6 +49,14 @@ public class Usuario {
 
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+
+    public List<Reporte> getReportes() {
+        return reportes;
+    }
+
+    public void setReportes(List<Reporte> reportes) {
+        this.reportes = reportes;
     }
 
     // Getters y setters

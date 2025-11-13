@@ -30,9 +30,12 @@ public class SecurityConfig {
 
                         // Endpoints públicos
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/registro").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/recuperar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/reportes/guardar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reportes/archivo/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reportes/archivo/video/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reportes/usuario/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reportes/**").permitAll()
 
                         // Todo lo demás protegido
                         .anyRequest().authenticated()

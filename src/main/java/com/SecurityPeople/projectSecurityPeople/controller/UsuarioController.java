@@ -23,4 +23,18 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
+    @GetMapping("/recuperar")
+    public ResponseEntity<?> recuperarContraseña(@RequestParam String correo) {
+        try {
+            usuarioService.recuperarContraseña(correo);
+            return ResponseEntity.ok("Se ha enviado una nueva contraseña al correo ingresado");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
 }

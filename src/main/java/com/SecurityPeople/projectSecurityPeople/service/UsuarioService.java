@@ -33,4 +33,30 @@ public class UsuarioService {
         emailService.sendSimpleEmail(usuario.getCorreo(),usuario.getCorreo());
         return usuarioRepository.save(usuario);
     }
+
+
+
+    public void recuperarContraseña(String correo) {
+
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new RuntimeException("Correo no registrado"));
+
+        // Generar contraseña temporal
+        String nuevaClave = "TEMP" + (int)(Math.random() * 9000 + 1000);
+
+        // Encriptar nueva contraseña
+        usuario.setContraseña(bcrypt.encode(nuevaClave));
+        usuarioRepository.save(usuario);
+
+        // Enviar correo
+        String mensaje = "Tu nueva contraseña temporal es: " + nuevaClave +
+                "\nPor favor cámbiala después de iniciar sesión.";
+
+        boolean enviado = emailService.sendSimpleEmail(correo, mensaje);
+
+        if (!enviado) {
+            throw new RuntimeException("Hubo un error al enviar el correo");
+        }
+    }
+
 }

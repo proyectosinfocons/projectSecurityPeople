@@ -1,5 +1,6 @@
 package com.SecurityPeople.projectSecurityPeople.controller;
 
+import com.SecurityPeople.projectSecurityPeople.dto.ReporteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.SecurityPeople.projectSecurityPeople.model.Reporte;
 import com.SecurityPeople.projectSecurityPeople.service.ReporteService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -63,4 +66,19 @@ public class ReporteController {
 
         return new ResponseEntity<>(reporte.getArchivo(), headers, HttpStatus.OK);
     }
+
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<ReporteDTO>> obtenerReportesPorUsuario(@PathVariable Long usuarioId) {
+        List<ReporteDTO> reportes = reporteService.obtenerReportesPorUsuario(usuarioId);
+
+        // Limpiar el campo archivo para no saturar la respuesta JSON
+
+        return ResponseEntity.ok(reportes);
+    }
+
+
+
+
+
 }
