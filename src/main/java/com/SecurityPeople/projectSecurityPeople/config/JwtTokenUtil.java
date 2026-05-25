@@ -1,0 +1,165 @@
+//package com.SecurityPeople.projectSecurityPeople.config;
+//
+//import io.jsonwebtoken.Claims;
+//import io.jsonwebtoken.Jwts;
+//import io.jsonwebtoken.SignatureAlgorithm;
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.stereotype.Component;
+//
+//import javax.crypto.spec.SecretKeySpec;
+//import java.security.Key;
+//import java.util.Base64;
+//import java.util.Date;
+//import java.util.HashMap;
+//import java.util.Map;
+//import java.util.function.Function;
+//
+//@Component
+//public class JwtTokenUtil {
+//
+//    public final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; // 5 horas
+//
+//    @Value("${jwt.secret}")
+//    private String secret;
+//
+//    public String generateToken(UserDetails userDetails) {
+//
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put("correo", userDetails.getUsername());
+//
+//        return Jwts.builder()
+//                .setClaims(claims)
+//                .setSubject(userDetails.getUsername())
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
+//                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+//                .compact();
+//    }
+//
+//    private Key getSigningKey() {
+//        return new SecretKeySpec(Base64.getDecoder().decode(secret), SignatureAlgorithm.HS512.getJcaName());
+//    }
+//
+//    public Claims getAllClaimsFromToken(String token){
+//        return Jwts.parserBuilder()
+//                .setSigningKey(getSigningKey())
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody();
+//    }
+//
+//    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver){
+//        final Claims claims = getAllClaimsFromToken(token);
+//        return claimsResolver.apply(claims);
+//    }
+//
+//    public String getUsernameFromToken(String token){
+//        return getClaimFromToken(token, Claims::getSubject);
+//    }
+//
+//    public Date getExpirationDateFromToken(String token){
+//        return getClaimFromToken(token, Claims::getExpiration);
+//    }
+//
+//    private boolean isTokenExpired(String token){
+//        return getExpirationDateFromToken(token).before(new Date());
+//    }
+//
+//    public boolean validateToken(String token, UserDetails userDetails){
+//        final String username = getUsernameFromToken(token);
+//        return (username.equalsIgnoreCase(userDetails.getUsername()) && !isTokenExpired(token));
+//    }
+//}
+
+
+package com.SecurityPeople.projectSecurityPeople.config;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+@Component
+public class JwtTokenUtil {
+
+    // ❌ YA NO USAMOS EXPIRACIÓN
+    public final long JWT_TOKEN_VALIDITY = 0;
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    public String generateToken(UserDetails userDetails) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("correo", userDetails.getUsername());
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+
+                // ❌ ELIMINADO: .setExpiration(...)
+
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    private Key getSigningKey() {
+        return new SecretKeySpec(
+                Base64.getDecoder().decode(secret),
+                SignatureAlgorithm.HS512.getJcaName()
+        );
+    }
+
+    public Claims getAllClaimsFromToken(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver){
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public String getUsernameFromToken(String token){
+        return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    // ❌ YA NO DEPENDE DE EXPIRACIÓN
+    public Date getExpirationDateFromToken(String token){
+        try {
+            return getClaimFromToken(token, Claims::getExpiration);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 🔥 IMPORTANTE: SI NO HAY EXPIRACIÓN → SIEMPRE VÁLIDO
+    private boolean isTokenExpired(String token){
+        Date exp = getExpirationDateFromToken(token);
+        return exp != null && exp.before(new Date());
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails){
+        final String username = getUsernameFromToken(token);
+
+        return (
+                username.equalsIgnoreCase(userDetails.getUsername())
+                        && !isTokenExpired(token) // si no hay exp → siempre true
+        );
+    }
+}

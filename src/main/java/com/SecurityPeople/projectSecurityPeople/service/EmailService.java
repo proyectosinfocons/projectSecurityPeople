@@ -18,13 +18,9 @@ public class EmailService {
             message.setTo(toEmail);
             message.setSubject("CUENTA REGISTRADA EXITOSAMENTE");
 
-            // 💬 Aquí agregamos el mensaje al cuerpo del correo
-            String fullBody = "✅ Correo creado exitosamente\n\n"
-                    + "Detalles del mensaje:\n"
-                    + body
-                    + "\n\nSaludos,\nProject Informatic";
 
-            message.setText(fullBody);
+
+            message.setText(body);
 
             mailSender.send(message);
             return true;
@@ -34,4 +30,7 @@ public class EmailService {
             return false;
         }
     }
+
+
+
 }

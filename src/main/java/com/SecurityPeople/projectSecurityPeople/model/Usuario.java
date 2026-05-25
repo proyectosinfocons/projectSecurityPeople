@@ -31,9 +31,17 @@ public class Usuario {
     @JsonIgnore // 👈 evita enviar todos los reportes del usuario
     private List<Reporte> reportes;
 
+
+
+    // 🔥 NUEVA RELACIÓN: Usuario → Contactos de emergencia
+    // Un usuario puede tener varios contactos
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContactoEmergencia> contactosEmergencia;
+
+
     public Usuario() {}
 
-    public Usuario(Long id, String nombre, String apellido, String correo, String contraseña, LocalDateTime fechaRegistro, List<Reporte> reportes) {
+    public Usuario(Long id, String nombre, String apellido, String correo, String contraseña, LocalDateTime fechaRegistro, List<Reporte> reportes, List<ContactoEmergencia> contactosEmergencia) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -41,6 +49,15 @@ public class Usuario {
         this.contraseña = contraseña;
         this.fechaRegistro = fechaRegistro;
         this.reportes = reportes;
+        this.contactosEmergencia=contactosEmergencia;
+    }
+
+    public List<ContactoEmergencia> getContactosEmergencia() {
+        return contactosEmergencia;
+    }
+
+    public void setContactosEmergencia(List<ContactoEmergencia> contactosEmergencia) {
+        this.contactosEmergencia = contactosEmergencia;
     }
 
     public LocalDateTime getFechaRegistro() {

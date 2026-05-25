@@ -13,12 +13,14 @@ public class ReporteDTO {
     private String tipo;
     private String urlArchivo; // URL para obtener imagen o video aparte ✅
 
+    private String tiporeporte;
+
     public ReporteDTO() {
     }
 
     public ReporteDTO(Long id, String descripcion, Double latitud,
                       Double longitud, LocalDateTime fechaRegistro,
-                      Long usuarioId, String tipo, String urlArchivo) {
+                      Long usuarioId, String tipo, String urlArchivo,String tiporeporte) {
         this.id = id;
         this.descripcion = descripcion;
         this.latitud = latitud;
@@ -27,6 +29,15 @@ public class ReporteDTO {
         this.usuarioId = usuarioId;
         this.tipo = tipo;
         this.urlArchivo = urlArchivo;
+        this.tiporeporte=tiporeporte;
+    }
+
+    public String getTiporeporte() {
+        return tiporeporte;
+    }
+
+    public void setTiporeporte(String tiporeporte) {
+        this.tiporeporte = tiporeporte;
     }
 
     // ✅ Getters y Setters

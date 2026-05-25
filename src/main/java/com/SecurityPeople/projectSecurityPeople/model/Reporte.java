@@ -34,10 +34,13 @@
         @JsonIgnoreProperties({"reportes"}) // 👈 evita recursión infinita
         private Usuario usuario;
 
+        @Column(name = "tipo_reporte")
+        private String tiporeporte;
+
         public Reporte() {
         }
 
-        public Reporte(Long id, String descripcion, Double latitud, Double longitud, byte[] archivo, LocalDateTime fechaRegistro, String tipo, Usuario usuario) {
+        public Reporte(Long id, String descripcion, Double latitud, Double longitud, byte[] archivo, LocalDateTime fechaRegistro, String tipo, Usuario usuario, String tiporeporte) {
             this.id = id;
             this.descripcion = descripcion;
             this.latitud = latitud;
@@ -46,6 +49,7 @@
             this.fechaRegistro = fechaRegistro;
             this.tipo=tipo;
             this.usuario = usuario;
+            this.tiporeporte=tiporeporte;
         }
 
         public String getTipo() {
@@ -111,5 +115,13 @@
 
         public void setFechaRegistro(LocalDateTime fechaRegistro) {
             this.fechaRegistro = fechaRegistro;
+        }
+
+        public String getTiporeporte() {
+            return tiporeporte;
+        }
+
+        public void setTiporeporte(String tiporeporte) {
+            this.tiporeporte = tiporeporte;
         }
     }

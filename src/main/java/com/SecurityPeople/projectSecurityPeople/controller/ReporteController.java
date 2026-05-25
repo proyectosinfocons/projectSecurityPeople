@@ -23,14 +23,44 @@ public class ReporteController {
 
     @PostMapping("/guardar")
     public Reporte guardarReporte(
+            @RequestHeader("Authorization") String token,
             @RequestParam("descripcion") String descripcion,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo
     ) throws Exception {
-        return reporteService.guardarReporte(descripcion, latitud, longitud, archivo);
+        return reporteService.guardarReporte(descripcion, latitud, longitud, archivo,token);
     }
 
+
+    // =========================================================
+    // 🔥 NUEVO ENDPOINT (INICIO CAMBIO)
+    // 👉 Obtiene reportes del usuario logueado usando JWT
+    // =========================================================
+    @GetMapping("/mis-reportes")
+    public ResponseEntity<List<ReporteDTO>> obtenerMisReportes(
+            @RequestHeader("Authorization") String token) {
+
+        List<ReporteDTO> reportes = reporteService.obtenerReportesDesdeToken(token);
+        return ResponseEntity.ok(reportes);
+    }
+    // =========================================================
+    // 🔥 FIN CAMBIO
+    // =========================================================
+
+
+
+    @PostMapping("/guardar-con-token")
+    public Reporte guardarReporteConToken(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("latitud") Double latitud,
+            @RequestParam("longitud") Double longitud,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo
+    ) throws Exception {
+
+        return reporteService.guardarReporteConToken(token, descripcion, latitud, longitud, archivo);
+    }
 
 
     // ✅ Nuevo método: obtener imagen por ID
@@ -52,6 +82,15 @@ public class ReporteController {
         return new ResponseEntity<>(archivo, headers, HttpStatus.OK);
     }
 
+
+    // =========================================================
+// 🔥 NUEVO: OBTENER TODOS LOS REPORTES (PARA EL MAPA)
+// =========================================================
+    @GetMapping
+    public ResponseEntity<List<ReporteDTO>> obtenerTodosLosReportes() {
+        List<ReporteDTO> reportes = reporteService.obtenerTodosLosReportes();
+        return ResponseEntity.ok(reportes);
+    }
 
     @GetMapping("/archivo/video/{id}")
     public ResponseEntity<byte[]> obtenerVideoPorId(@PathVariable Long id) {

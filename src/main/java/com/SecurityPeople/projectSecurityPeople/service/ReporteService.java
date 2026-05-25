@@ -1,5 +1,6 @@
     package com.SecurityPeople.projectSecurityPeople.service;
     
+    import com.SecurityPeople.projectSecurityPeople.config.JwtTokenUtil;
     import com.SecurityPeople.projectSecurityPeople.dto.ReporteDTO;
     import com.SecurityPeople.projectSecurityPeople.model.Usuario;
     import com.SecurityPeople.projectSecurityPeople.repository.UsuarioRepository;
@@ -24,28 +25,100 @@
         private final ReporteRepository reporteRepository;
 
         private final UsuarioRepository usuarioRepository;
-    
-        public ReporteService(ReporteRepository reporteRepository, UsuarioRepository usuarioRepository) {
+
+        private final JwtTokenUtil jwtTokenUtil;
+
+        public ReporteService(ReporteRepository reporteRepository, UsuarioRepository usuarioRepository,JwtTokenUtil jwtTokenUtil) {
             this.reporteRepository = reporteRepository;
             this.usuarioRepository = usuarioRepository;
+            this.jwtTokenUtil=jwtTokenUtil;
         }
 
 
-        public Reporte guardarReporte(String descripcion, Double latitud, Double longitud, MultipartFile archivo) throws IOException {
+
+
+
+
+        // =========================================================
+        // 🔥 INICIO CAMBIO: MÉTODO CON TOKEN (BOTÓN PÁNICO)
+        // =========================================================
+        public Reporte guardarReporteConToken(
+                String token,
+                String descripcion,
+                Double latitud,
+                Double longitud,
+                MultipartFile archivo
+        ) throws IOException {
+
+            // 🔴 1. OBTENER CORREO DESDE TOKEN
+            String correo = jwtTokenUtil.getUsernameFromToken(token.replace("Bearer ", ""));
+
+            // 🔴 2. BUSCAR USUARIO REAL
+            Usuario usuario = usuarioRepository.findByCorreo(correo)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            // 🔴 3. CREAR REPORTE (SIN IMAGEN)
+            Reporte reporte = new Reporte();
+            reporte.setDescripcion(descripcion);
+            reporte.setLatitud(latitud);
+            reporte.setLongitud(longitud);
+            reporte.setFechaRegistro(LocalDateTime.now(ZoneId.of("America/Bogota")));
+            reporte.setUsuario(usuario);
+            reporte.setTiporeporte("BOTON DE PANICO");
+            // 🔴 NO GUARDAMOS ARCHIVO (botón pánico)
+            reporte.setArchivo(null);
+            reporte.setTipo("No existe archivo");
+
+            return reporteRepository.save(reporte);
+        }
+        // =========================================================
+        // 🔥 FIN CAMBIO
+        // =========================================================
+
+
+
+
+
+
+
+        // =========================================================
+        // 🔥 INICIO CAMBIO PRINCIPAL
+        // 👉 SOLUCIONA ERROR LOB + OPTIMIZA CONSULTA
+        // =========================================================
+        @Transactional
+        public List<ReporteDTO> obtenerReportesDesdeToken(String token) {
+
+            // 🔴 1. Extraer correo del token
+            String correo = jwtTokenUtil.getUsernameFromToken(token.replace("Bearer ", ""));
+
+            // 🔴 2. Buscar usuario
+            Usuario usuario = usuarioRepository.findByCorreo(correo)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            // 🔴 3. Traer reportes SIN archivo (🔥 CLAVE)
+            return reporteRepository.findReportesSinArchivo(usuario.getId());
+        }
+        // =========================================================
+        // 🔥 FIN CAMBIO
+        // =========================================================
+
+
+        public Reporte guardarReporte(String descripcion, Double latitud, Double longitud, MultipartFile archivo,String token) throws IOException {
+
+            // 🔴 1. OBTENER CORREO DESDE TOKEN
+            String correo = jwtTokenUtil.getUsernameFromToken(token.replace("Bearer ", ""));
 
             // 🔹 Buscar el usuario en base de datos (por ID = 28, como ejemplo)
-            Long usuarioId = 1L;
-            Optional<Usuario> optionalUsuario = usuarioRepository.findById(usuarioId);
+            //Long usuarioId = 1L;
+            Optional<Usuario> optionalUsuario = usuarioRepository.findByCorreo(correo);
 
             if (optionalUsuario.isEmpty()) {
-                throw new IllegalArgumentException("No se encontró el usuario con ID " + usuarioId);
+                throw new IllegalArgumentException("No se encontró el usuario con ID " + optionalUsuario.get().getId());
             }
 
             Usuario usuario = optionalUsuario.get(); // Usuario real desde la BD
 
-            String tipoArchivo = determinarTipoArchivo(
-                    archivo != null ? archivo.getContentType() : null
-            );
+            String tipoArchivo = determinarTipoArchivo();
 
             Reporte reporte = new Reporte();
             reporte.setDescripcion(descripcion);
@@ -55,7 +128,7 @@
             reporte.setFechaRegistro(LocalDateTime.now(ZoneId.of("America/Bogota")));
             reporte.setUsuario(usuario);
             reporte.setArchivo(archivo.getBytes());
-
+            reporte.setTiporeporte("ROBO");
 
             return reporteRepository.save(reporte);
         }
@@ -67,17 +140,39 @@
         }
 
 
+        // =========================================================
+// 🔥 NUEVO: LISTAR TODOS LOS REPORTES
+// =========================================================
+        public List<ReporteDTO> obtenerTodosLosReportes() {
 
-        private String determinarTipoArchivo(String contentType) {
-            if (contentType == null) return "desconocido";
+            List<Reporte> reportes = reporteRepository.findAll();
 
-            if (contentType.startsWith("image/")) {
+            return reportes.stream()
+                    .map(r -> new ReporteDTO(
+                            r.getId(),
+                            r.getDescripcion(),
+                            r.getLatitud(),
+                            r.getLongitud(),
+                            r.getFechaRegistro(),
+                            r.getUsuario() != null ? r.getUsuario().getId() : null,
+                            r.getTipo(),
+                            generarUrlDeArchivo(r),
+                            r.getTiporeporte()
+                    )).collect(Collectors.toList());
+        }
+
+
+
+        private String determinarTipoArchivo() {
+//            if (contentType == null) return "desconocido";
+//
+//            if (contentType.startsWith("image/")) {
                 return "imagen";
-            } else if (contentType.startsWith("video/")) {
-                return "video";
-            } else {
-                return "otro";
-            }
+//            } else if (contentType.startsWith("video/")) {
+//                return "video";
+//            } else {
+//                return "otro";
+//            }
         }
 
         @Transactional
@@ -93,7 +188,8 @@
                             r.getFechaRegistro(),
                             r.getUsuario() != null ? r.getUsuario().getId() : null,
                             r.getTipo(),
-                            generarUrlDeArchivo(r)
+                            generarUrlDeArchivo(r),
+                            r.getTiporeporte()
                     )).collect(Collectors.toList());
         }
 
