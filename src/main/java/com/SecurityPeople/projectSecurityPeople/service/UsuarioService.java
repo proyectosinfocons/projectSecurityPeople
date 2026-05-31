@@ -6,9 +6,11 @@ import com.SecurityPeople.projectSecurityPeople.dto.RegistroCodigoRequest;
 import com.SecurityPeople.projectSecurityPeople.dto.VerificarCodigoRequest;
 import com.SecurityPeople.projectSecurityPeople.model.Usuario;
 import com.SecurityPeople.projectSecurityPeople.repository.UsuarioRepository;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -109,25 +111,168 @@ public class UsuarioService {
         System.out.println("Correo: " + correo);
         System.out.println("Código: " + codigo);
         System.out.println("================================");
+        String mensajeHtml =
 
-        // =================================================
-        // 🔥 ENVIAR EMAIL
-        // =================================================
-        SimpleMailMessage mensaje =
-                new SimpleMailMessage();
+                "<html>" +
 
-        mensaje.setTo(correo);
+                        "<body style='margin:0;padding:0;background-color:#f4f6f9;" +
+                        "font-family:Arial,sans-serif;'>" +
 
-        mensaje.setSubject(
-                "Código de verificación"
-        );
+                        "<table width='100%' cellpadding='0' cellspacing='0'>" +
+                        "<tr>" +
+                        "<td align='center'>" +
 
-        mensaje.setText(
-                "Tu código de verificación es: "
-                        + codigo
-        );
+                        // =================================================
+                        // 🔥 CONTENEDOR PRINCIPAL
+                        // =================================================
 
-        mailSender.send(mensaje);
+                        "<table width='600' cellpadding='0' cellspacing='0' " +
+                        "style='background:#ffffff;margin-top:40px;border-radius:12px;" +
+                        "overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);'>" +
+
+                        // =================================================
+                        // 🔥 HEADER
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='background:#D32F2F;padding:30px;" +
+                        "text-align:center;color:white;'>" +
+
+                        "<h1 style='margin:0;font-size:28px;'>" +
+                        "Alertas Comunitarias" +
+                        "</h1>" +
+
+                        "<p style='margin-top:10px;font-size:16px;'>" +
+                        "Código de verificación" +
+                        "</p>" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        // =================================================
+                        // 🔥 CONTENIDO
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='padding:40px;color:#333333;'>" +
+
+                        "<h2 style='color:#D32F2F;margin-top:0;'>" +
+                        "🔐 Verificación de cuenta" +
+                        "</h2>" +
+
+                        "<p style='font-size:16px;line-height:1.7;'>" +
+                        "Hemos recibido una solicitud de verificación para su cuenta. " +
+                        "Utilice el siguiente código OTP para completar el proceso de registro." +
+                        "</p>" +
+
+                        // =================================================
+                        // 🔥 CÓDIGO OTP
+                        // =================================================
+
+                        "<div style='margin-top:30px;" +
+                        "background:#f8f9fa;" +
+                        "padding:25px;" +
+                        "border-radius:12px;" +
+                        "text-align:center;" +
+                        "border:2px dashed #D32F2F;'>" +
+
+                        "<p style='margin:0;font-size:15px;color:#666;'>" +
+                        "Código de verificación" +
+                        "</p>" +
+
+                        "<h1 style='margin:15px 0;color:#D32F2F;" +
+                        "font-size:42px;letter-spacing:8px;'>" +
+                        codigo +
+                        "</h1>" +
+
+                        "</div>" +
+
+                        // =================================================
+                        // 🔥 MENSAJE
+                        // =================================================
+
+                        "<p style='font-size:15px;line-height:1.7;margin-top:30px;'>" +
+                        "Este código es temporal y debe utilizarse únicamente para " +
+                        "confirmar el registro de su cuenta." +
+                        "</p>" +
+
+                        // =================================================
+                        // 🔥 ALERTA
+                        // =================================================
+
+                        "<div style='margin-top:20px;padding:15px;" +
+                        "background:#fff3cd;border-left:5px solid #ff9800;" +
+                        "border-radius:6px;font-size:14px;color:#856404;'>" +
+
+                        "<b>Importante:</b> " +
+                        "No comparta este código con terceros para proteger la seguridad de su cuenta." +
+
+                        "</div>" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        // =================================================
+                        // 🔥 FOOTER
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='background:#eeeeee;padding:20px;" +
+                        "text-align:center;font-size:13px;color:#666666;'>" +
+
+                        "Alertas Comunitarias<br>" +
+                        "Sistema Inteligente de Seguridad Ciudadana<br><br>" +
+
+                        "© 2026 Alertas Comunitarias" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        "</table>" +
+
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+
+                        "</body>" +
+                        "</html>";
+        try {
+
+            MimeMessage message =
+                    mailSender.createMimeMessage();
+
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(
+                            message,
+                            true,
+                            "UTF-8"
+                    );
+
+            helper.setFrom(
+                    "projectinformatic6666@gmail.com"
+            );
+
+            helper.setTo(correo);
+
+            helper.setSubject(
+                    "CODIGO DE VERIFICACION"
+            );
+
+            helper.setText(
+                    mensajeHtml,
+                    true
+            );
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            throw new RuntimeException(
+                    "Error al enviar el correo"
+            );
+        }
     }
 
     // =====================================================
@@ -205,11 +350,132 @@ public class UsuarioService {
                         usuario.getContraseña()
                 )
         );
+//        String mensaje =
+//                "✅ Correo creado exitosamente\n\n"
+//                        + "Detalles del mensaje:\n"
+//                        + usuario.getCorreo()
+//                        + "\n\nSaludos,\nProject Informatic";
+        // =====================================================
+// 🔥 MENSAJE HTML PROFESIONAL PARA TESIS
+// =====================================================
+
+// =====================================================
+// 🔥 MENSAJE HTML PROFESIONAL
+// =====================================================
+
         String mensaje =
-                "✅ Correo creado exitosamente\n\n"
-                        + "Detalles del mensaje:\n"
-                        + usuario.getCorreo()
-                        + "\n\nSaludos,\nProject Informatic";
+                "<html>" +
+                        "<body style='margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,sans-serif;'>" +
+
+                        "<table width='100%' cellpadding='0' cellspacing='0'>" +
+                        "<tr>" +
+                        "<td align='center'>" +
+
+                        // =================================================
+                        // 🔥 CONTENEDOR PRINCIPAL
+                        // =================================================
+
+                        "<table width='600' cellpadding='0' cellspacing='0' " +
+                        "style='background:#ffffff;margin-top:40px;border-radius:12px;" +
+                        "overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);'>" +
+
+                        // =================================================
+                        // 🔥 HEADER
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='background:#D32F2F;padding:30px;text-align:center;color:white;'>" +
+
+                        "<h1 style='margin:0;font-size:28px;'>Alertas Comunitarias</h1>" +
+
+                        "<p style='margin-top:10px;font-size:16px;'>" +
+                        "Sistema Inteligente de Seguridad Ciudadana" +
+                        "</p>" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        // =================================================
+                        // 🔥 CONTENIDO
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='padding:40px;color:#333333;'>" +
+
+                        "<h2 style='color:#D32F2F;margin-top:0;'>" +
+                        "✅ Registro Exitoso" +
+                        "</h2>" +
+
+                        "<p style='font-size:16px;line-height:1.6;'>" +
+                        "Estimado usuario, su cuenta ha sido registrada correctamente " +
+                        "en la plataforma <b>Alertas Comunitarias</b>." +
+                        "</p>" +
+
+                        "<table width='100%' cellpadding='10' cellspacing='0' " +
+                        "style='margin-top:20px;background:#f8f9fa;border-radius:8px;'>" +
+
+                        "<tr>" +
+                        "<td style='font-size:15px;'>" +
+                        "<b>Correo registrado:</b><br>" +
+                        usuario.getCorreo() +
+                        "</td>" +
+                        "</tr>" +
+
+                        "</table>" +
+
+                        "<p style='font-size:15px;line-height:1.6;margin-top:25px;'>" +
+                        "Ahora podrá acceder a las funcionalidades del sistema, " +
+                        "incluyendo reportes de incidentes, alertas cercanas y " +
+                        "herramientas de seguridad ciudadana." +
+                        "</p>" +
+
+                        // =================================================
+                        // 🔥 ALERTA SEGURIDAD
+                        // =================================================
+
+                        "<div style='margin-top:25px;padding:15px;" +
+                        "background:#fff3cd;border-left:5px solid #ff9800;" +
+                        "border-radius:6px;font-size:14px;color:#856404;'>" +
+
+                        "<b>Importante:</b> " +
+                        "No comparta sus credenciales con terceros para mantener " +
+                        "la seguridad de su cuenta." +
+
+                        "</div>" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        // =================================================
+                        // 🔥 FOOTER
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='background:#eeeeee;padding:20px;text-align:center;" +
+                        "font-size:13px;color:#666666;'>" +
+
+                        "Alertas Comunitarias<br>" +
+                        "Sistema Inteligente de Seguridad Ciudadana<br><br>" +
+
+                        "© 2026 Alertas Comunitarias" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        "</table>" +
+
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+
+                        "</body>" +
+                        "</html>";
+
+
+
+
+
+
         // =================================================
         // 🔥 GUARDAR USUARIO
         // =================================================
@@ -396,10 +662,137 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
 
         // Enviar correo
-        String mensaje = "Tu nueva contraseña temporal es: " + nuevaClave +
-                "\nPor favor cámbiala después de iniciar sesión.";
+//        String mensaje = "Tu nueva contraseña temporal es: " + nuevaClave +
+//                "\nPor favor cámbiala después de iniciar sesión.";
 
-        boolean enviado = emailService.sendSimpleEmail(correo, mensaje);
+
+
+        String mensaje =
+
+                "<html>" +
+
+                        "<body style='margin:0;padding:0;background-color:#f4f6f9;" +
+                        "font-family:Arial,sans-serif;'>" +
+
+                        "<table width='100%' cellpadding='0' cellspacing='0'>" +
+                        "<tr>" +
+                        "<td align='center'>" +
+
+                        // =================================================
+                        // 🔥 CONTENEDOR
+                        // =================================================
+
+                        "<table width='600' cellpadding='0' cellspacing='0' " +
+                        "style='background:#ffffff;margin-top:40px;border-radius:12px;" +
+                        "overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);'>" +
+
+                        // =================================================
+                        // 🔥 HEADER
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='background:#D32F2F;padding:30px;" +
+                        "text-align:center;color:white;'>" +
+
+                        "<h1 style='margin:0;font-size:28px;'>" +
+                        "Alertas Comunitarias" +
+                        "</h1>" +
+
+                        "<p style='margin-top:10px;font-size:16px;'>" +
+                        "Recuperación de contraseña" +
+                        "</p>" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        // =================================================
+                        // 🔥 CONTENIDO
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='padding:40px;color:#333333;'>" +
+
+                        "<h2 style='color:#D32F2F;margin-top:0;'>" +
+                        "🔐 Cambio de contraseña" +
+                        "</h2>" +
+
+                        "<p style='font-size:16px;line-height:1.6;'>" +
+                        "Se ha generado una contraseña temporal para su cuenta." +
+                        "</p>" +
+
+                        // =================================================
+                        // 🔥 PASSWORD TEMPORAL
+                        // =================================================
+
+                        "<div style='margin-top:25px;" +
+                        "background:#f8f9fa;" +
+                        "padding:20px;" +
+                        "border-radius:10px;" +
+                        "text-align:center;" +
+                        "border:2px dashed #D32F2F;'>" +
+
+                        "<p style='margin:0;font-size:15px;color:#666;'>" +
+                        "Contraseña temporal" +
+                        "</p>" +
+
+                        "<h1 style='margin:10px 0;color:#D32F2F;" +
+                        "letter-spacing:3px;'>" +
+                        nuevaClave +
+                        "</h1>" +
+
+                        "</div>" +
+
+                        // =================================================
+                        // 🔥 MENSAJE
+                        // =================================================
+
+                        "<p style='font-size:15px;line-height:1.7;margin-top:25px;'>" +
+                        "Por seguridad, le recomendamos cambiar esta contraseña " +
+                        "después de iniciar sesión en la aplicación." +
+                        "</p>" +
+
+                        // =================================================
+                        // 🔥 ALERTA
+                        // =================================================
+
+                        "<div style='margin-top:20px;padding:15px;" +
+                        "background:#fff3cd;border-left:5px solid #ff9800;" +
+                        "border-radius:6px;font-size:14px;color:#856404;'>" +
+
+                        "<b>Importante:</b> " +
+                        "No comparta esta contraseña con terceros." +
+
+                        "</div>" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        // =================================================
+                        // 🔥 FOOTER
+                        // =================================================
+
+                        "<tr>" +
+                        "<td style='background:#eeeeee;padding:20px;" +
+                        "text-align:center;font-size:13px;color:#666666;'>" +
+
+                        "Alertas Comunitarias<br>" +
+                        "Sistema Inteligente de Seguridad Ciudadana<br><br>" +
+
+                        "© 2026 Alertas Comunitarias" +
+
+                        "</td>" +
+                        "</tr>" +
+
+                        "</table>" +
+
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+
+                        "</body>" +
+                        "</html>";
+
+        boolean enviado = emailService.sendSimpleEmailUpdatePassword(correo, mensaje);
 
         if (!enviado) {
             throw new RuntimeException("Hubo un error al enviar el correo");

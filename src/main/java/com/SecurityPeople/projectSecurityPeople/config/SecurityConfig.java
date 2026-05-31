@@ -50,6 +50,9 @@ public class SecurityConfig {
                         // =========================================================
                         // 🔥 INICIO CAMBIO: PERMITIR REPORTES
                         // =========================================================
+
+                        .requestMatchers(HttpMethod.GET, "/api/reportes").permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/api/reportes/**").authenticated()
                         // =========================================================
                         // 🔥 FIN CAMBIO
