@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -28,4 +29,37 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
     // =========================================================
     // 🔥 FIN CAMBIO
     // =========================================================
+
+
+
+
+
+    // NUEVO FILTRO POR FECHAS
+    @Query(
+            "SELECT r " +
+                    "FROM Reporte r " +
+                    "WHERE r.fechaRegistro BETWEEN :inicio AND :fin " +
+                    "ORDER BY r.fechaRegistro DESC"
+    )
+    List<Reporte> buscarPorFechas(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin
+    );
+
+
+
+
+
+    @Query("SELECT new com.SecurityPeople.projectSecurityPeople.dto.ReporteDTO(" +
+            "r.id, r.descripcion, r.latitud, r.longitud, r.fechaRegistro, " +
+            "r.usuario.id, r.tipo, null, r.tiporeporte) " +
+            "FROM Reporte r " +
+            "WHERE r.usuario.id = :id " +
+            "AND r.fechaRegistro BETWEEN :inicio AND :fin " +
+            "ORDER BY r.fechaRegistro DESC")
+    List<ReporteDTO> findReportesSinArchivoPorFechas(
+            @Param("id") Long id,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin
+    );
 }

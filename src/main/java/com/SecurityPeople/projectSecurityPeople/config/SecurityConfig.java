@@ -52,8 +52,8 @@ public class SecurityConfig {
                         // =========================================================
 
                         .requestMatchers(HttpMethod.GET, "/api/reportes").permitAll()
-
-                        .requestMatchers(HttpMethod.GET, "/api/reportes/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reportes/**").permitAll()
+                       // .requestMatchers(HttpMethod.GET, "/api/reportes/**").authenticated()
                         // =========================================================
                         // 🔥 FIN CAMBIO
                         // =========================================================

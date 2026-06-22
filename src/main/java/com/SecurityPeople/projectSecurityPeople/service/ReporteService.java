@@ -11,6 +11,7 @@
     import com.SecurityPeople.projectSecurityPeople.repository.ReporteRepository;
     
     import java.io.IOException;
+    import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.ZoneId;
     import java.util.ArrayList;
@@ -203,5 +204,79 @@
 
 
 
+
+
+
+
+        @Transactional
+        public List<ReporteDTO> filtrarPorFecha(
+                String fechaInicio,
+                String fechaFin
+        ) {
+
+            LocalDateTime inicio =
+                    LocalDate.parse(fechaInicio)
+                            .atStartOfDay();
+
+            LocalDateTime fin =
+                    LocalDate.parse(fechaFin)
+                            .atTime(23,59,59);
+
+            List<Reporte> reportes =
+                    reporteRepository.buscarPorFechas(
+                            inicio,
+                            fin
+                    );
+
+            return reportes.stream()
+                    .map(r -> new ReporteDTO(
+                            r.getId(),
+                            r.getDescripcion(),
+                            r.getLatitud(),
+                            r.getLongitud(),
+                            r.getFechaRegistro(),
+                            r.getUsuario() != null
+                                    ? r.getUsuario().getId()
+                                    : null,
+                            r.getTipo(),
+                            generarUrlDeArchivo(r),
+                            r.getTiporeporte()
+                    ))
+                    .collect(Collectors.toList());
+        }
+
+
+
+        @Transactional
+        public List<ReporteDTO> filtrarMisReportes(
+                String token,
+                String fechaInicio,
+                String fechaFin
+        ) {
+
+            String correo =
+                    jwtTokenUtil.getUsernameFromToken(
+                            token.replace("Bearer ", "")
+                    );
+
+            Usuario usuario =
+                    usuarioRepository.findByCorreo(correo)
+                            .orElseThrow(() ->
+                                    new RuntimeException("Usuario no encontrado"));
+
+            LocalDateTime inicio =
+                    LocalDate.parse(fechaInicio)
+                            .atStartOfDay();
+
+            LocalDateTime fin =
+                    LocalDate.parse(fechaFin)
+                            .atTime(23,59,59);
+
+            return reporteRepository.findReportesSinArchivoPorFechas(
+                    usuario.getId(),
+                    inicio,
+                    fin
+            );
+        }
 
     }

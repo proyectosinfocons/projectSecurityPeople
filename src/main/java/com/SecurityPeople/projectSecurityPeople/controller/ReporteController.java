@@ -119,5 +119,40 @@ public class ReporteController {
 
 
 
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<ReporteDTO>> filtrarPorFecha(
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFin
+    ) {
 
+        List<ReporteDTO> reportes =
+                reporteService.filtrarPorFecha(
+                        fechaInicio,
+                        fechaFin
+                );
+
+        return ResponseEntity.ok(reportes);
+    }
+
+
+    // =========================================================
+// 🔥 NUEVO ENDPOINT
+// 👉 Obtiene MIS reportes filtrados por fechas usando JWT
+// =========================================================
+    @GetMapping("/mis-reportes/filtrar")
+    public ResponseEntity<List<ReporteDTO>> filtrarMisReportes(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFin
+    ) {
+
+        List<ReporteDTO> reportes =
+                reporteService.filtrarMisReportes(
+                        token,
+                        fechaInicio,
+                        fechaFin
+                );
+
+        return ResponseEntity.ok(reportes);
+    }
 }
